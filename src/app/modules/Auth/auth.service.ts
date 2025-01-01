@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import prisma from "../../config";
+import { prisma } from "../../config";
 import { generateToken } from "../../utils/genarateToken";
 
 export const registerUser = async (

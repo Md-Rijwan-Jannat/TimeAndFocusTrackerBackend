@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { authService } from "./auth.service";
 import { generateToken } from "../../utils/genarateToken";
+import config from "../../config";
 
 const register = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -18,7 +19,7 @@ const register = async (req: Request, res: Response) => {
         user_id: user.user_id,
         name: user.name,
         email: user.email,
-        avatar_url: user.avatar_url,
+        avatar_url: config.avatarUrl,
         role: user.role,
         created_at: user.created_at,
         updated_at: user.updated_at,
