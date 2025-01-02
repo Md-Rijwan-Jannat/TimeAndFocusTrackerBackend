@@ -5,17 +5,28 @@ import { USER_ROLE } from "../Auth/auth.constants";
 
 const router = express.Router();
 
+// Get all users
+router.get(
+  "/",
+  auth(USER_ROLE.ADMIN, USER_ROLE.USER),
+  userController.getAllUser
+);
+
 // Get user by ID
 router.get(
-  "/users/:id",
+  "/:id",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   userController.getUser
 );
 
 // Update user details
-router.put("/users/:id", auth(USER_ROLE.ADMIN), userController.update);
+router.put(
+  "/:id",
+  auth(USER_ROLE.ADMIN, USER_ROLE.USER),
+  userController.update
+);
 
 // Delete user by ID
-router.delete("/users/:id", auth(USER_ROLE.ADMIN), userController.remove);
+router.delete("/:id", auth(USER_ROLE.ADMIN), userController.remove);
 
 export const userRoutes = router;

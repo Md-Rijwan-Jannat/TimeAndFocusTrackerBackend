@@ -9,7 +9,7 @@ const register = catchAsync(async (req, res) => {
   const { name, email, password } = req.body;
 
   const user = await authService.registerUser(name, email, password);
-  const token = generateToken(user.user_id);
+  const token = generateToken(user.user_id, user.role, user.email);
 
   sendResponse(res, {
     success: true,

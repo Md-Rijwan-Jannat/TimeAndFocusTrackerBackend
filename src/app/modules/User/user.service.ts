@@ -1,4 +1,27 @@
+import QueryBuilder from "../../builder/queryBuilder";
 import prisma from "../../config/prismaClient";
+
+// Get user by ID
+export const getAllUser = async (query: Record<string, unknown>) => {
+  const qb = new QueryBuilder(prisma.user, query);
+
+  // Build the query using QueryBuilder methods and execute
+  const result = await qb
+    .search(["name", "email"])
+    .filter()
+    .sort()
+    .paginate()
+    .fields()
+    .execute();
+
+  if (!result || result.length === 0) {
+    throw new Error("No users found");
+  }
+
+  const meta = await qb.countTotal();
+
+  return { result, meta };
+};
 
 // Get user by ID
 export const getUserById = async (userId: number) => {
@@ -49,6 +72,7 @@ export const deleteUser = async (userId: number) => {
 };
 
 export const userService = {
+  getAllUser,
   getUserById,
   updateUser,
   deleteUser,

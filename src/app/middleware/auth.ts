@@ -16,16 +16,15 @@ export const auth = (...requiredRoles: string[]) => {
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
-      throw new AppError(
-        httpStatus.UNAUTHORIZED,
-        "You are not authorized. Login first"
-      );
+      throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized");
     }
 
     try {
       const decoded = jwt.verify(token, config.jwt_access_secret as string);
 
-      const { email, role } = decoded as JwtPayload;
+      console.log("decoded", decoded);
+
+      const { id, role } = decoded as JwtPayload;
 
       // const cachedToken = await getCachedData(
       //   `sparkle-car-service:user:${email}:token`
@@ -35,7 +34,9 @@ export const auth = (...requiredRoles: string[]) => {
       //   throw new AppError(httpStatus.UNAUTHORIZED, "Token is not valid");
       // }
 
-      const user = await prisma.user.findUnique(email);
+      const user = await prisma.user.findUnique({
+        where: { user_id: id },
+      });
 
       if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, "This user is not found!");

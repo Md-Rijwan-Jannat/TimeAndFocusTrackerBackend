@@ -7,6 +7,7 @@ type TResponse<T> = {
   accessToken?: string;
   refreshToken?: string;
   data?: T;
+  meta?: any;
 };
 
 const sendResponse = <T>(res: Response, data: TResponse<T>) => {
@@ -16,6 +17,7 @@ const sendResponse = <T>(res: Response, data: TResponse<T>) => {
     statusCode: data.statusCode,
     message: data.message,
     data: data.data,
+    meta: data.meta,
   };
 
   if (data.accessToken) {
