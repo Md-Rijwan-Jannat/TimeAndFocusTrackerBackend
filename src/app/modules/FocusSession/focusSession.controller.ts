@@ -1,102 +1,110 @@
-import { Request, Response } from "express";
 import { FocusSessionService } from "./focusSession.service";
+import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
+import httpStatus from "http-status";
+import AppError from "../../error/appError";
 
-const createFocusSession = async (req: Request, res: Response) => {
-  const { user_id, duration, timestamp } = req.body;
+// Create focus session
+const createFocusSession = catchAsync(async (req, res) => {
+  const session = await FocusSessionService.createFocusSession(
+    req.body,
+    Number(req.user.id)
+  );
 
-  try {
-    const session = await FocusSessionService.createFocusSession(
-      user_id,
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Focus session created successfully",
+    data: session,
+  });
+});
+
+// Get all focus sessions
+const getAllFocusSessionsForUser = catchAsync(async (req, res) => {
+  const sessions = await FocusSessionService.getAllFocusSessionsForUser(
+    Number(req.user.id)
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "All focus sessions retrieved",
+    data: sessions,
+  });
+});
+
+// Get focus session by ID
+const getFocusSessionById = catchAsync(async (req, res) => {
+  const { session_id } = req.params;
+
+  const session = await FocusSessionService.getFocusSessionById(
+    Number(session_id)
+  );
+
+  if (!session) {
+    throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
+  }
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Focus session retrieved",
+    data: session,
+  });
+});
+
+// Update focus session
+const updateFocusSession = catchAsync(async (req, res) => {
+  const { session_id } = req.params;
+  const { start_time, end_time, duration, session_type, is_successful } =
+    req.body;
+
+  const updatedSession = await FocusSessionService.updateFocusSession(
+    Number(session_id),
+    {
+      start_time,
+      end_time,
       duration,
-      timestamp
-    );
-    res
-      .status(201)
-      .json({ message: "Focus session created successfully", session });
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-const getAllFocusSessions = async (req: Request, res: Response) => {
-  try {
-    const sessions = await FocusSessionService.getAllFocusSessions();
-    res.status(200).json({ message: "All focus sessions retrieved", sessions });
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-const getFocusSessionById = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const { id } = req.params;
-
-  try {
-    const session = await FocusSessionService.getFocusSessionById(Number(id));
-    if (!session) {
-      res.status(404).json({ message: "Focus session not found" });
-      return;
+      session_type,
+      is_successful,
     }
-    res.status(200).json({ message: "Focus session retrieved", session });
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
+  );
+
+  if (!updatedSession) {
+    throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
   }
-};
 
-const updateFocusSession = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const { id } = req.params;
-  const { duration, timestamp } = req.body;
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Focus session updated successfully",
+    data: updatedSession,
+  });
+});
 
-  try {
-    const updatedSession = await FocusSessionService.updateFocusSession(
-      Number(id),
-      {
-        duration,
-        timestamp,
-      }
-    );
+// Delete focus session
+const deleteFocusSession = catchAsync(async (req, res) => {
+  const { session_id } = req.params;
 
-    if (!updatedSession) {
-      res.status(404).json({ message: "Focus session not found" });
-      return;
-    }
+  const deletedSession = await FocusSessionService.deleteFocusSession(
+    Number(session_id)
+  );
 
-    res
-      .status(200)
-      .json({ message: "Focus session updated successfully", updatedSession });
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
+  if (!deletedSession) {
+    throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
   }
-};
 
-const deleteFocusSession = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const { id } = req.params;
-
-  try {
-    const deleted = await FocusSessionService.deleteFocusSession(Number(id));
-
-    if (!deleted) {
-      res.status(404).json({ message: "Focus session not found" });
-      return;
-    }
-
-    res.status(200).json({ message: "Focus session deleted successfully" });
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
-  }
-};
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Focus session deleted successfully",
+    data: deletedSession,
+  });
+});
 
 export const focusSessionController = {
   createFocusSession,
-  getAllFocusSessions,
+  getAllFocusSessionsForUser,
   getFocusSessionById,
   updateFocusSession,
   deleteFocusSession,

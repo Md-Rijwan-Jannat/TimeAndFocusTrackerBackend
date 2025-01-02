@@ -19,8 +19,8 @@ const getAllUser = catchAsync(async (req, res) => {
 
 // Get user by ID
 const getUser = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const user = await userService.getUserById(Number(id));
+  const { user_id } = req.params;
+  const user = await userService.getUserById(Number(user_id));
 
   sendResponse(res, {
     success: true,
@@ -32,10 +32,13 @@ const getUser = catchAsync(async (req, res) => {
 
 // Update user details
 const update = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.user;
+  const { user_id } = req.user;
   const updatedData = req.body;
 
-  const updatedUser = await userService.updateUser(Number(id), updatedData);
+  const updatedUser = await userService.updateUser(
+    Number(user_id),
+    updatedData
+  );
 
   sendResponse(res, {
     success: true,
@@ -47,9 +50,9 @@ const update = catchAsync(async (req: Request, res: Response) => {
 
 // Delete user by ID
 const remove = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { user_id } = req.params;
 
-  await userService.deleteUser(Number(id));
+  await userService.deleteUser(Number(user_id));
 
   sendResponse(res, {
     success: true,
