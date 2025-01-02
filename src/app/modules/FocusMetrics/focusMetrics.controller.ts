@@ -1,29 +1,31 @@
 import { Request, Response } from "express";
-import { FocusMetricService } from "./focusMetrice.service";
+import { FocusMetricsService } from "./focusMetrics.service";
 
-// Get focus metrics for a user
 const getFocusMetrics = async (req: Request, res: Response) => {
-  const { user_id, start_date, end_date } = req.query;
+  const { userId } = req.params;
+  const { type } = req.query; // `type` can be "daily" or "weekly"
+
   try {
-    const metrics = await FocusMetricService.getFocusMetrics(
-      parseInt(user_id as string),
-      start_date as string,
-      end_date as string
+    const metrics = await FocusMetricsService.getFocusMetrics(
+      userId,
+      type as string
     );
-    res.status(200).json({ metrics });
+    res
+      .status(200)
+      .json({ message: "Focus metrics retrieved successfully", metrics });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// Get streak data for a user
 const getStreaks = async (req: Request, res: Response) => {
-  const { user_id } = req.query;
+  const { userId } = req.params;
+
   try {
-    const streaks = await FocusMetricService.getStreaks(
-      parseInt(user_id as string)
-    );
-    res.status(200).json({ streaks });
+    const streaks = await FocusMetricsService.getStreaks(userId);
+    res
+      .status(200)
+      .json({ message: "Streaks retrieved successfully", streaks });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }

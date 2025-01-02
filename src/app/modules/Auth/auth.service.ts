@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import { prisma } from "../../config";
-import { generateToken } from "../../utils/genarateToken";
+import { generateToken } from "../../utils/jwt";
+import prisma from "../../config/prismaClient";
 
 export const registerUser = async (
   name: string,
@@ -41,7 +41,20 @@ export const loginUser = async (email: string, password: string) => {
   return { token, user };
 };
 
+export const getUserById = async (userId: number) => {
+  const user = await prisma.user.findUnique({
+    where: { user_id: userId },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+};
+
 export const authService = {
   registerUser,
   loginUser,
+  getUserById,
 };

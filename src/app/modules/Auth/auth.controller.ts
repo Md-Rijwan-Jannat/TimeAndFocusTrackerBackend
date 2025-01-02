@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { authService } from "./auth.service";
-import { generateToken } from "../../utils/genarateToken";
+import { generateToken } from "../../utils/jwt";
 import config from "../../config";
 
 const register = async (req: Request, res: Response) => {
@@ -39,6 +39,30 @@ const login = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "Login successful",
       token,
+      user: {
+        user_id: user.user_id,
+        name: user.name,
+        email: user.email,
+        avatar_url: user.avatar_url,
+        role: user.role,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+      },
+    });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const getProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.user_id; // Extract the user ID from the JWT payload
+
+    // Fetch the user profile using the userId
+    const user = await authService.getUserById(userId);
+
+    res.status(200).json({
+      message: "User profile fetched successfully",
       user: {
         user_id: user.user_id,
         name: user.name,
