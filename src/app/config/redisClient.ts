@@ -1,4 +1,5 @@
 import { createClient } from "redis";
+
 const redisClient = createClient({
   url: process.env.REDIS_URL,
   password: process.env.REDIS_PASSWORD,
@@ -11,16 +12,20 @@ const redisClient = createClient({
     },
   },
 });
+
 redisClient.on("error", (err) => {
   console.error("Redis error:", err);
 });
+
 redisClient.on("connect", () => {
   console.log("Connected to Redis");
 });
 redisClient.on("ready", () => console.log("Redis Client Ready"));
 redisClient.on("reconnecting", () => console.log("Redis Client Reconnecting"));
 redisClient.on("end", () => console.log("Redis Client Ended"));
+
 redisClient
   .connect()
   .catch((err) => console.error("Redis Connection Error:", err));
+
 export default redisClient;

@@ -1,3 +1,4 @@
-export const USER_ROLE = ["USER", "ADMIN"] as const;
-
-export type TUSER_ROLE = (typeof USER_ROLE)[number];
+export const USER_ROLE = {
+  ADMIN: "ADMIN",
+  USER: "USER",
+} as const;
