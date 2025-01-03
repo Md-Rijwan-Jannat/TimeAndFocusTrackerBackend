@@ -1,33 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `badges` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `focus_sessions` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `streaks` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `users` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "badges" DROP CONSTRAINT "badges_user_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "focus_sessions" DROP CONSTRAINT "focus_sessions_user_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "streaks" DROP CONSTRAINT "streaks_user_id_fkey";
-
--- DropTable
-DROP TABLE "badges";
-
--- DropTable
-DROP TABLE "focus_sessions";
-
--- DropTable
-DROP TABLE "streaks";
-
--- DropTable
-DROP TABLE "users";
-
 -- CreateTable
 CREATE TABLE "User" (
     "user_id" SERIAL NOT NULL,
@@ -51,7 +21,8 @@ CREATE TABLE "FocusSession" (
     "end_time" TIMESTAMP(3) NOT NULL,
     "duration" INTEGER NOT NULL,
     "session_type" TEXT NOT NULL,
-    "is_successful" BOOLEAN NOT NULL,
+    "note" TEXT NOT NULL,
+    "is_successful" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "FocusSession_pkey" PRIMARY KEY ("session_id")
 );

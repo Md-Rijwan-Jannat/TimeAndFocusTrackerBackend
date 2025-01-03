@@ -37,6 +37,7 @@ model FocusSession {
   end_time     DateTime
   duration     Int
   session_type String
+  note         String
   is_successful Boolean   @default(false)
 
   // Relations

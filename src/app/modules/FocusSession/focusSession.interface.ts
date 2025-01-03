@@ -1,5 +1,3 @@
-import { TUser } from "../User/user.interface";
-
 // FocusSession interface
 export interface TFocusSession {
   session_id: number;
@@ -8,5 +6,6 @@ export interface TFocusSession {
   end_time: Date;
   duration: number;
   session_type: string;
+  note: string;
   is_successful: boolean;
 }

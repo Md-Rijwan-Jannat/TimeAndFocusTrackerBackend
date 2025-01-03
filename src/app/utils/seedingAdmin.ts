@@ -11,16 +11,16 @@ export const seed = async () => {
     const admin = await prisma.user.findFirst({
       where: {
         role: "ADMIN",
-        email: "admin.example@gmail.com",
+        email: "admin@example.com",
       },
     });
 
     if (!admin) {
       await prisma.user.create({
         data: {
-          name: "Md Rijwan",
+          name: "Admin Name",
           role: "ADMIN",
-          email: "admin.example@gmail.com",
+          email: "admin@example.com",
           password_hash: await bcrypt.hash("password123", 10),
         },
       });

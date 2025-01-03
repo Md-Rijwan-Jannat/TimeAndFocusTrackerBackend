@@ -3,10 +3,11 @@ import AppError from "../../error/appError";
 import { TFocusSession } from "./focusSession.interface";
 import httpStatus from "http-status";
 
+// Create focus session
 const createFocusSession = async (
-  payload: Omit<TFocusSession, "session_id">,
+  payload: TFocusSession,
   userId: number
-): Promise<TFocusSession> => {
+): Promise<TFocusSession[]> => {
   const user = await prisma.user.findUnique({
     where: { user_id: userId },
   });
@@ -15,18 +16,51 @@ const createFocusSession = async (
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  return prisma.focusSession.create({
-    data: {
-      user_id: userId,
-      start_time: new Date(payload.start_time),
-      end_time: new Date(payload.end_time),
-      duration: payload.duration,
-      session_type: payload.session_type,
-      is_successful: false,
-    },
-  });
+  const { duration, session_type, note } = payload;
+
+  // Define work and break durations in minutes
+  const workDuration = 25;
+  const breakDuration = 5;
+
+  // Calculate total cycles
+  const totalCycles = Math.floor(duration / (workDuration + breakDuration));
+
+  // Get the current time for the session start
+  let currentTime = new Date();
+
+  // Array to store created sessions
+  const createdSessions: TFocusSession[] = [];
+
+  for (let i = 0; i < totalCycles; i++) {
+    const workSessionStartTime = new Date(currentTime);
+    const workSessionEndTime = new Date(
+      currentTime.getTime() + workDuration * 60 * 1000
+    );
+
+    const focusSession = await prisma.focusSession.create({
+      data: {
+        user_id: userId,
+        start_time: workSessionStartTime,
+        end_time: workSessionEndTime,
+        duration: workDuration,
+        session_type: session_type,
+        note: note,
+        is_successful: false,
+      },
+    });
+
+    createdSessions.push(focusSession);
+
+    // Update current time to include break
+    currentTime = new Date(
+      workSessionEndTime.getTime() + breakDuration * 60 * 1000
+    );
+  }
+
+  return createdSessions;
 };
 
+// Get all focus sessions
 const getAllFocusSessionsForUser = async (
   userId: number
 ): Promise<TFocusSession[]> => {
