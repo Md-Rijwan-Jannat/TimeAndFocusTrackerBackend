@@ -1,3 +1,6 @@
+import { TUser } from "../User/user.interface";
+
+// FocusSession interface
 export interface TFocusSession {
   session_id: number;
   user_id: number;
