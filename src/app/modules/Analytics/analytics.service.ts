@@ -1,7 +1,8 @@
 import prisma from "../../config/prismaClient";
 import AppError from "../../error/appError";
 import httpStatus from "http-status";
-import { getStartEndOfWeek } from "./analytics.utils";
+import { createReward, getStartEndOfWeek } from "./analytics.utils";
+import { RewardType } from "@prisma/client";
 
 // Calculate daily metrics for a specific date
 const calculateDailyMetrics = async (userId: number, date: Date) => {
@@ -34,6 +35,25 @@ const calculateDailyMetrics = async (userId: number, date: Date) => {
 
   const dayIndex = startOfDay.getDay();
   dayData[dayIndex].total = totalFocusTime;
+
+  // Reward logic for daily performance
+  let rewardType: RewardType | null = null;
+  let rewardDetails = "";
+
+  if (totalFocusTime > 60 * 60 * 1) {
+    // More than 1 hour of focus time
+    rewardType = RewardType.FocusNovice;
+    rewardDetails = "Awarded for initial focus milestones";
+  } else if (sessionsCompleted > 3) {
+    // Completed more than 3 sessions
+    rewardType = RewardType.FocusChampion;
+    rewardDetails = "Awarded for completing multiple focus sessions in a day";
+  }
+
+  // Create reward if applicable
+  if (rewardType) {
+    await createReward(userId, rewardType, rewardDetails);
+  }
 
   return { dayData, totalFocusTime, sessionsCompleted };
 };
@@ -69,6 +89,25 @@ const calculateWeeklyMetrics = async (userId: number) => {
   const currentWeekIndex = Math.floor(Math.random() * 4); // Example logic for demonstration
   weeklyData[currentWeekIndex].total = totalFocusTime;
 
+  // Reward logic for weekly performance
+  let rewardType: RewardType | null = null;
+  let rewardDetails = "";
+
+  if (totalFocusTime > 60 * 60 * 5) {
+    // More than 5 hours in a week
+    rewardType = RewardType.ConsistencyKing;
+    rewardDetails = "Awarded for consistent performance over the week";
+  } else if (sessionsCompleted >= 4) {
+    // At least 4 sessions completed in a week
+    rewardType = RewardType.HabitBuilder;
+    rewardDetails = "Awarded for building strong work habits over the week";
+  }
+
+  // Create reward if applicable
+  if (rewardType) {
+    await createReward(userId, rewardType, rewardDetails);
+  }
+
   return { weeklyData, totalFocusTime, sessionsCompleted };
 };
 
@@ -100,6 +139,27 @@ const calculateMonthlyMetrics = async (userId: number, month: Date) => {
   // Split into weeks (simplified here; production logic should be more robust)
   const currentWeekIndex = Math.floor(Math.random() * 4); // Example logic for demonstration
   monthlyData[currentWeekIndex].total = totalFocusTime;
+
+  // Reward logic for monthly performance
+  let rewardType: RewardType | null = null;
+  let rewardDetails = "";
+
+  if (totalFocusTime > 60 * 60 * 20) {
+    // More than 20 hours in a month
+    rewardType = RewardType.ProductivityMaster;
+    rewardDetails =
+      "Awarded for mastering productivity techniques over the month";
+  } else if (totalFocusTime > 60 * 60 * 10) {
+    // More than 10 hours in a month
+    rewardType = RewardType.TimeManagementExpert;
+    rewardDetails =
+      "Awarded for excellent time management skills over the month";
+  }
+
+  // Create reward if applicable
+  if (rewardType) {
+    await createReward(userId, rewardType, rewardDetails);
+  }
 
   return { monthlyData, totalFocusTime };
 };

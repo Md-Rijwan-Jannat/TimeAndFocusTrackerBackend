@@ -4,33 +4,63 @@ import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import { RewardService } from "./reward.service";
 
-// Create a new reward
-const createReward = catchAsync(async (req: Request, res: Response) => {
-  const { userId, rewardType, details } = req.body;
-
-  const reward = await RewardService.createReward(userId, rewardType, details);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.CREATED,
-    message: "Reward created successfully",
-    data: reward,
-  });
-});
-
 // Get all rewards for a user
-const getUserRewards = catchAsync(async (req: Request, res: Response) => {
+const getAllUserRewards = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.params;
 
-  const rewards = await RewardService.getUserRewards(Number(userId));
+  const rewards = await RewardService.getAllUserRewards(Number(userId));
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "Rewards retrieved successfully",
+    message: "All rewards retrieved successfully",
     data: rewards,
   });
 });
+
+// Get daily rewards for a user
+const getDailyUserRewards = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  const rewards = await RewardService.getDailyUserRewards(Number(userId));
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Daily rewards retrieved successfully",
+    data: rewards,
+  });
+});
+
+// Get weekly rewards for a user
+const getWeeklyUserRewards = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  const rewards = await RewardService.getWeeklyUserRewards(Number(userId));
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Weekly rewards retrieved successfully",
+    data: rewards,
+  });
+});
+
+// Get monthly rewards for a user
+const getMonthlyUserRewards = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userId } = req.params;
+
+    const rewards = await RewardService.getMonthlyUserRewards(Number(userId));
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Monthly rewards retrieved successfully",
+      data: rewards,
+    });
+  }
+);
 
 // Get a reward by ID
 const getRewardById = catchAsync(async (req: Request, res: Response) => {
@@ -43,25 +73,6 @@ const getRewardById = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     message: "Reward retrieved successfully",
     data: reward,
-  });
-});
-
-// Update a reward
-const updateReward = catchAsync(async (req: Request, res: Response) => {
-  const { rewardId } = req.params;
-  const { rewardType, details } = req.body;
-
-  const updatedReward = await RewardService.updateReward(
-    Number(rewardId),
-    rewardType,
-    details
-  );
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Reward updated successfully",
-    data: updatedReward,
   });
 });
 
@@ -79,9 +90,10 @@ const deleteReward = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const RewardController = {
-  createReward,
-  getUserRewards,
+  getAllUserRewards,
+  getDailyUserRewards,
+  getWeeklyUserRewards,
+  getMonthlyUserRewards,
   getRewardById,
-  updateReward,
   deleteReward,
 };

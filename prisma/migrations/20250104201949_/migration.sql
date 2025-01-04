@@ -5,7 +5,7 @@ CREATE TYPE "UserRole" AS ENUM ('Student', 'Admin');
 CREATE TYPE "FocusSessionStatus" AS ENUM ('Active', 'Paused', 'Complete');
 
 -- CreateEnum
-CREATE TYPE "RewardType" AS ENUM ('Streak', 'Badge');
+CREATE TYPE "RewardType" AS ENUM ('FocusNovice', 'ConsistencyKing', 'ProductivityMaster', 'TimeManagementExpert', 'FocusChampion', 'HabitBuilder', 'GoalGetter', 'EfficiencyGuru');
 
 -- CreateTable
 CREATE TABLE "User" (

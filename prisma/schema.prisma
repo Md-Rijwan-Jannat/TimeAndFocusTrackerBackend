@@ -26,8 +26,14 @@ enum FocusSessionStatus {
 }
 
 enum RewardType {
-  Streak
-  Badge
+  FocusNovice
+  ConsistencyKing
+  ProductivityMaster
+  TimeManagementExpert
+  FocusChampion
+  HabitBuilder
+  GoalGetter
+  EfficiencyGuru
 }
 
 // Updated Schema
@@ -65,12 +71,14 @@ model FocusSession {
 }
 
 model Rewards {
-  id         Int       @id @default(autoincrement())
+  id         Int          @id @default(autoincrement())
   userId     Int
   rewardType RewardType
   details    String?
-  createdAt  DateTime  @default(now())
+  createdAt  DateTime     @default(now())
 
   // Relation with the User model
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+

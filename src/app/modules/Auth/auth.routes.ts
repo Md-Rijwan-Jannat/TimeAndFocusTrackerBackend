@@ -13,4 +13,4 @@ router.get(
   authController.getProfile
 );
 
-export const authRoutes = router;
+export const AuthRoutes = router;

@@ -5,37 +5,44 @@ import { USER_ROLE } from "../Auth/auth.constants";
 
 const router = express.Router();
 
-// Create a new reward
-router.post(
-  "",
+// Get all rewards for a user
+router.get(
+  "/:userId/all",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
-  RewardController.createReward
+  RewardController.getAllUserRewards
 );
 
-// Get rewards for a user
+// Get daily rewards for a user
 router.get(
-  "/:userId",
+  "/:userId/daily",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
-  RewardController.getUserRewards
+  RewardController.getDailyUserRewards
+);
+
+// Get weekly rewards for a user
+router.get(
+  "/:userId/weekly",
+  auth(USER_ROLE.ADMIN, USER_ROLE.USER),
+  RewardController.getWeeklyUserRewards
+);
+
+// Get monthly rewards for a user
+router.get(
+  "/:userId/monthly",
+  auth(USER_ROLE.ADMIN, USER_ROLE.USER),
+  RewardController.getMonthlyUserRewards
 );
 
 // Get reward by ID
 router.get(
-  "/:rewardId",
+  "/reward/:rewardId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   RewardController.getRewardById
 );
 
-// Update a reward
-router.put(
-  "/:rewardId",
-  auth(USER_ROLE.ADMIN, USER_ROLE.USER),
-  RewardController.updateReward
-);
-
 // Delete a reward
 router.delete(
-  "/:rewardId",
+  "/reward/:rewardId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   RewardController.deleteReward
 );
