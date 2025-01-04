@@ -21,21 +21,21 @@ router.get(
 
 // Get focus session by ID
 router.get(
-  "/:session_id",
+  "/:sessionId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   focusSessionController.getFocusSessionById
 );
 
 // Update focus session
 router.put(
-  "/:session_id",
+  "/:sessionId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   focusSessionController.updateFocusSession
 );
 
 // Delete focus session
 router.delete(
-  "/:session_id",
+  "/:sessionId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   focusSessionController.deleteFocusSession
 );

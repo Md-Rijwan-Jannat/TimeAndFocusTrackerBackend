@@ -1,7 +1,7 @@
 import express from "express";
 import { auth } from "../../middleware/auth";
 import { USER_ROLE } from "../Auth/auth.constants";
-import { focusMetricController } from "./focusMetrics.controller";
+import { focusMetricController } from "./analytics.controller";
 
 const router = express.Router();
 
@@ -23,4 +23,4 @@ router.get(
   focusMetricController.getStreakMetrics
 );
 
-export const focusMetricsRoutes = router;
+export const analyticsRoutes = router;

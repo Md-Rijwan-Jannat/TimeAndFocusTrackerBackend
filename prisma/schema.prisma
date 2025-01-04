@@ -13,71 +13,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enums for predefined values
+enum UserRole {
+  Student
+  Admin
+}
+
+enum FocusSessionStatus {
+  Active
+  Paused
+  Complete
+}
+
+enum RewardType {
+  Streak
+  Badge
+}
+
+// Updated Schema
 model User {
-  user_id       Int       @id @default(autoincrement())
-  name          String
-  email         String    @unique
-  password_hash String
-  avatar_url    String?
-  role          String    @default("student")
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  last_login    DateTime?
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  password     String
+  avatarUrl    String?  @default("https://i.pinimg.com/280x280_RS/e1/08/21/e10821c74b533d465ba888ea66daa30f.jpg")
+  role         UserRole @default(Student)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relations
-  focusSessions  FocusSession[]
-  focusMetrics   FocusMetric[]
-  rewardHistories RewardHistory[]
+  focusSessions FocusSession[]
+  rewards       Rewards[]
 }
 
 model FocusSession {
-  session_id   Int       @id @default(autoincrement())
-  user_id      Int
-  start_time   DateTime
-  end_time     DateTime
-  duration     Int
-  session_type String
-  note         String
-  is_successful Boolean   @default(false)
+  id            Int                @id @default(autoincrement())
+  userId        Int
+  focusDuration Int
+  breakDuration Int
+  startedAt     DateTime
+  pausedAt      DateTime?
+  resumedAt     DateTime?
+  endedAt       DateTime?
+  status        FocusSessionStatus @default(Active)
+  isComplete    Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 
-  // Relations
-  user User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  // Relation
+  user          User               @relation(fields: [userId], references: [id])
 }
 
-model FocusMetric {
-  metric_id       Int      @id @default(autoincrement())
-  user_id         Int
-  date            DateTime @default(now())
-  total_focus_time Int
-  sessions_completed Int
-  streak_count    Int
-  longest_streak  Int
-  badge_awarded   String?
+model Rewards {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  rewardType RewardType
+  details    String?
+  createdAt  DateTime  @default(now())
 
-  // Relations
-  user User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-}
-
-model Badge {
-  badge_id   Int      @id @default(autoincrement())
-  name       String
-  description String
-  image_url  String
-  criteria   String
-  created_at DateTime @default(now())
-
-  // Relations
-  rewardHistories RewardHistory[]
-}
-
-model RewardHistory {
-  reward_id    Int      @id @default(autoincrement())
-  user_id      Int
-  badge_id     Int
-  awarded_at   DateTime @default(now())
-  description  String?
-
-  // Relations
-  user  User  @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  badge Badge @relation(fields: [badge_id], references: [badge_id], onDelete: Cascade)
+  // Relation with the User model
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

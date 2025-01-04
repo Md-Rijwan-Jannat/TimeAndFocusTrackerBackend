@@ -35,10 +35,10 @@ const getAllFocusSessionsForUser = catchAsync(async (req, res) => {
 
 // Get focus session by ID
 const getFocusSessionById = catchAsync(async (req, res) => {
-  const { session_id } = req.params;
+  const { sessionId } = req.params;
 
   const session = await FocusSessionService.getFocusSessionById(
-    Number(session_id)
+    Number(sessionId)
   );
 
   if (!session) {
@@ -55,18 +55,16 @@ const getFocusSessionById = catchAsync(async (req, res) => {
 
 // Update focus session
 const updateFocusSession = catchAsync(async (req, res) => {
-  const { session_id } = req.params;
-  const { start_time, end_time, duration, session_type, is_successful } =
-    req.body;
+  const { sessionId } = req.params;
+  const { startedAt, endedAt, focusDuration, isComplete } = req.body;
 
   const updatedSession = await FocusSessionService.updateFocusSession(
-    Number(session_id),
+    Number(sessionId),
     {
-      start_time,
-      end_time,
-      duration,
-      session_type,
-      is_successful,
+      startedAt,
+      endedAt,
+      focusDuration,
+      isComplete,
     }
   );
 
@@ -84,10 +82,10 @@ const updateFocusSession = catchAsync(async (req, res) => {
 
 // Delete focus session
 const deleteFocusSession = catchAsync(async (req, res) => {
-  const { session_id } = req.params;
+  const { sessionId } = req.params;
 
   const deletedSession = await FocusSessionService.deleteFocusSession(
-    Number(session_id)
+    Number(sessionId)
   );
 
   if (!deletedSession) {

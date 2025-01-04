@@ -8,13 +8,13 @@ const calculateDailyMetrics = async (userId: number, date: Date) => {
 
   const sessions = await prisma.focusSession.findMany({
     where: {
-      user_id: userId,
-      start_time: { gte: startOfDay, lte: endOfDay },
+      id: userId,
+      startedAt: { gte: startOfDay, lte: endOfDay },
     },
   });
 
   const totalFocusTime = sessions.reduce(
-    (sum, session) => sum + session.duration,
+    (sum, session) => sum + session.focusDuration,
     0
   );
   const sessionsCompleted = sessions.length;
@@ -29,13 +29,13 @@ const calculateWeeklyMetrics = async (userId: number) => {
 
   const sessions = await prisma.focusSession.findMany({
     where: {
-      user_id: userId,
-      start_time: { gte: weekAgo, lte: now },
+      id: userId,
+      startedAt: { gte: weekAgo, lte: now },
     },
   });
 
   const totalFocusTime = sessions.reduce(
-    (sum, session) => sum + session.duration,
+    (sum, session) => sum + session.focusDuration,
     0
   );
   const sessionsCompleted = sessions.length;
@@ -45,8 +45,8 @@ const calculateWeeklyMetrics = async (userId: number) => {
 
 const calculateStreaks = async (userId: number) => {
   const sessions = await prisma.focusSession.findMany({
-    where: { user_id: userId },
-    orderBy: { start_time: "asc" },
+    where: { id: userId },
+    orderBy: { startedAt: "asc" },
   });
 
   let currentStreak = 0;
@@ -54,7 +54,7 @@ const calculateStreaks = async (userId: number) => {
   let lastDate: string | null = null;
 
   sessions.forEach((session) => {
-    const sessionDate = session.start_time.toISOString().split("T")[0];
+    const sessionDate = session.startedAt.toISOString().split("T")[0];
     if (
       lastDate &&
       new Date(sessionDate).getTime() - new Date(lastDate).getTime() ===

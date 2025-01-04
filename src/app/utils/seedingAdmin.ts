@@ -7,34 +7,41 @@ const prisma = new PrismaClient();
 
 export const seed = async () => {
   try {
-    // At first, check if the admin exists or not
-    const admin = await prisma.user.findFirst({
+    console.log("Starting seeding process...");
+
+    // Check if an admin already exists
+    const existingAdmin = await prisma.user.findUnique({
       where: {
-        role: "ADMIN",
         email: "admin@example.com",
       },
     });
 
-    if (!admin) {
+    if (!existingAdmin) {
+      // Create the admin user
       await prisma.user.create({
         data: {
           name: "Admin Name",
-          role: "ADMIN",
+          role: "Admin",
           email: "admin@example.com",
-          password_hash: await bcrypt.hash("password123", 10),
-          last_login: new Date(),
-          created_at: new Date(),
-          updated_at: new Date(),
-          avatar_url:
-            "https://i.pinimg.com/280x280_RS/e1/08/21/e10821c74b533d465ba888ea66daa30f.jpg",
+          password: await bcrypt.hash("password123", 10),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       });
-      console.log("Admin created successfully...");
+      console.log("Admin created successfully.");
+    } else {
+      console.log("Admin already exists, skipping creation.");
     }
-    console.log("Seeding completed...");
+
+    console.log("Seeding completed successfully.");
   } catch (error) {
-    console.log("Error in seeding", error);
+    console.error("Error occurred during seeding:", error);
   } finally {
     await prisma.$disconnect();
   }
 };
+
+// Execute the seed function if this file is run directly
+if (require.main === module) {
+  seed();
+}

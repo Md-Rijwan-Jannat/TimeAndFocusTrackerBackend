@@ -1,7 +1,7 @@
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
-import { focusMetricService } from "./focusMetrics.service";
+import { focusMetricService } from "./analytics.service";
 
 const getDailyMetrics = catchAsync(async (req, res) => {
   const { id } = req.user;

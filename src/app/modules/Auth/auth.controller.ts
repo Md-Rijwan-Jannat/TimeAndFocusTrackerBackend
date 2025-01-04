@@ -1,56 +1,47 @@
 import { Request, Response } from "express";
 import { authService } from "./auth.service";
-import { generateToken } from "../../utils/jwt";
+import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
-import catchAsync from "../../utils/catchAsync";
+import { generateToken } from "../../utils/jwt";
 
-const register = catchAsync(async (req, res) => {
+const register = catchAsync(async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
-
   const user = await authService.registerUser(name, email, password);
-  const token = generateToken(user.user_id, user.role, user.email);
+  const token = generateToken(user.id, user.role, user.email);
 
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     message: "User registered successfully",
     data: user,
     accessToken: token,
   });
 });
 
-const login = catchAsync(async (req, res) => {
+const login = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
-  const { token, user } = await authService.loginUser(email, password);
+  const { user, token } = await authService.loginUser(email, password);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "User login successful",
+    message: "Login successful",
     data: user,
     accessToken: token,
   });
 });
 
-// Get profile controller
-const getProfile = catchAsync(async (req, res) => {
-  const userId = req.user.user_id;
-
-  // Fetch the user profile using the userId
+const getProfile = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
   const user = await authService.getUserById(userId);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "User profile fetched successfully",
+    message: "Profile fetched successfully",
     data: user,
   });
 });
 
-export const authController = {
-  register,
-  login,
-  getProfile,
-};
+export const authController = { register, login, getProfile };
