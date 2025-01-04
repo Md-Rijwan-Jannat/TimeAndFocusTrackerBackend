@@ -13,33 +13,35 @@ const createFocusSession = catchAsync(async (req, res) => {
 
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     message: "Focus session created successfully",
     data: session,
   });
 });
 
-// Get all focus sessions
-const getAllFocusSessionsForUser = catchAsync(async (req, res) => {
-  const sessions = await FocusSessionService.getAllFocusSessionsForUser(
-    Number(req.user.id)
+// Get active focus session for a user
+const getActiveSession = catchAsync(async (req, res) => {
+  const activeSession = await FocusSessionService.getActiveSession(
+    Number(req.params.userId)
   );
+
+  if (!activeSession) {
+    throw new AppError(httpStatus.NOT_FOUND, "No active session found");
+  }
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "All focus sessions retrieved",
-    data: sessions,
+    message: "Active focus session retrieved",
+    data: activeSession,
   });
 });
 
 // Get focus session by ID
 const getFocusSessionById = catchAsync(async (req, res) => {
-  const { sessionId } = req.params;
+  const { id } = req.params;
 
-  const session = await FocusSessionService.getFocusSessionById(
-    Number(sessionId)
-  );
+  const session = await FocusSessionService.getFocusSessionById(Number(id));
 
   if (!session) {
     throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
@@ -53,19 +55,14 @@ const getFocusSessionById = catchAsync(async (req, res) => {
   });
 });
 
-// Update focus session
+// Update focus session by ID
 const updateFocusSession = catchAsync(async (req, res) => {
-  const { sessionId } = req.params;
-  const { startedAt, endedAt, focusDuration, isComplete } = req.body;
+  const { id } = req.params;
+  const data = req.body;
 
   const updatedSession = await FocusSessionService.updateFocusSession(
-    Number(sessionId),
-    {
-      startedAt,
-      endedAt,
-      focusDuration,
-      isComplete,
-    }
+    Number(id),
+    data
   );
 
   if (!updatedSession) {
@@ -80,12 +77,12 @@ const updateFocusSession = catchAsync(async (req, res) => {
   });
 });
 
-// Delete focus session
+// Delete focus session by ID
 const deleteFocusSession = catchAsync(async (req, res) => {
-  const { sessionId } = req.params;
+  const { id } = req.params;
 
   const deletedSession = await FocusSessionService.deleteFocusSession(
-    Number(sessionId)
+    Number(id)
   );
 
   if (!deletedSession) {
@@ -100,10 +97,62 @@ const deleteFocusSession = catchAsync(async (req, res) => {
   });
 });
 
-export const focusSessionController = {
+// List all focus sessions for a user
+const listFocusSessions = catchAsync(async (req, res) => {
+  const sessions = await FocusSessionService.listFocusSessions(
+    Number(req.params.userId)
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Focus sessions retrieved successfully",
+    data: sessions,
+  });
+});
+
+// Update focus session status
+const updateFocusSessionStatus = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { status } = req.body;
+
+  const updatedSession = await FocusSessionService.updateFocusSessionStatus(
+    Number(userId),
+    status
+  );
+
+  if (!updatedSession) {
+    throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
+  }
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Focus session status updated successfully",
+    data: updatedSession,
+  });
+});
+
+// Start a focus session for a user
+const startFocusSession = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const session = await FocusSessionService.startFocusSession(Number(userId));
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Focus session started successfully",
+    data: session,
+  });
+});
+
+export const FocusSessionController = {
   createFocusSession,
-  getAllFocusSessionsForUser,
+  getActiveSession,
   getFocusSessionById,
   updateFocusSession,
   deleteFocusSession,
+  listFocusSessions,
+  updateFocusSessionStatus,
+  startFocusSession,
 };

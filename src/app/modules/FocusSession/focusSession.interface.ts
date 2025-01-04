@@ -11,3 +11,7 @@ export interface TFocusSession {
   status: string; // ENUM	Default: 'active'	Session status: active, paused, completed
   isComplete: boolean; // BOOLEAN	Default: FALSE	Whether the session was completed
 }
+
+export interface FocusSessionStatus {
+  status: string;
+}

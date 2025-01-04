@@ -19,8 +19,8 @@ const getAllUser = catchAsync(async (req, res) => {
 
 // Get user by ID
 const getUser = catchAsync(async (req, res) => {
-  const { user_id } = req.params;
-  const user = await userService.getUserById(Number(user_id));
+  const { userId } = req.params;
+  const user = await userService.getUserById(Number(userId));
 
   sendResponse(res, {
     success: true,
@@ -31,14 +31,11 @@ const getUser = catchAsync(async (req, res) => {
 });
 
 // Update user details
-const update = catchAsync(async (req: Request, res: Response) => {
-  const { user_id } = req.user;
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.user;
   const updatedData = req.body;
 
-  const updatedUser = await userService.updateUser(
-    Number(user_id),
-    updatedData
-  );
+  const updatedUser = await userService.updateUser(Number(userId), updatedData);
 
   sendResponse(res, {
     success: true,
@@ -49,10 +46,10 @@ const update = catchAsync(async (req: Request, res: Response) => {
 });
 
 // Delete user by ID
-const remove = catchAsync(async (req: Request, res: Response) => {
-  const { user_id } = req.params;
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.params;
 
-  await userService.deleteUser(Number(user_id));
+  await userService.deleteUser(Number(userId));
 
   sendResponse(res, {
     success: true,
@@ -64,6 +61,6 @@ const remove = catchAsync(async (req: Request, res: Response) => {
 export const userController = {
   getAllUser,
   getUser,
-  update,
-  remove,
+  updateUser,
+  deleteUser,
 };

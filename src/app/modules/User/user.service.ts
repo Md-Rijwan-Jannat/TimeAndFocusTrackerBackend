@@ -26,9 +26,9 @@ export const getAllUser = async (query: Record<string, unknown>) => {
 };
 
 // Get user by ID
-export const getUserById = async (user_id: number) => {
+export const getUserById = async (id: number) => {
   const user = await prisma.user.findUnique({
-    where: { user_id },
+    where: { id },
   });
 
   if (!user) {
@@ -39,12 +39,9 @@ export const getUserById = async (user_id: number) => {
 };
 
 // Update user details
-export const updateUser = async (
-  user_id: number,
-  updatedData: Partial<any>
-) => {
+export const updateUser = async (id: number, updatedData: Partial<any>) => {
   const user = await prisma.user.findUnique({
-    where: { user_id },
+    where: { id },
   });
 
   if (!user) {
@@ -52,7 +49,7 @@ export const updateUser = async (
   }
 
   const updatedUser = await prisma.user.update({
-    where: { user_id },
+    where: { id },
     data: updatedData,
   });
 
@@ -60,9 +57,9 @@ export const updateUser = async (
 };
 
 // Delete user by ID
-export const deleteUser = async (user_id: number) => {
+export const deleteUser = async (id: number) => {
   const user = await prisma.user.findUnique({
-    where: { user_id: user_id },
+    where: { id: id },
   });
 
   if (!user) {
@@ -70,7 +67,7 @@ export const deleteUser = async (user_id: number) => {
   }
 
   await prisma.user.delete({
-    where: { user_id: user_id },
+    where: { id: id },
   });
 
   return { message: "User deleted successfully" };

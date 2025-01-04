@@ -1,57 +1,91 @@
 import prisma from "../../config/prismaClient";
 import AppError from "../../error/appError";
-import { TFocusSession } from "./focusSession.interface";
 import httpStatus from "http-status";
+import { TFocusSession } from "./focusSession.interface";
+import { FocusSessionStatus } from "@prisma/client";
 
-// Create focus session
+// Create a new focus session
 const createFocusSession = async (
-  payload: TFocusSession,
+  payload: Partial<TFocusSession>,
   userId: number
-): Promise<TFocusSession[]> => {
-  const user = await prisma.user.findUnique({
-    where: { user_id: userId },
-  });
+) => {
+  // Check if the user exists
+  const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const { duration, session_type, note } = payload;
+  // Use provided focusDuration and breakDuration or fallback to default values
+  const focusDuration = payload.focusDuration ?? 25;
+  const breakDuration = payload.breakDuration ?? 5;
 
-  // Define work and break durations in minutes
-  const workDuration = 25;
-  const breakDuration = 5;
+  if (focusDuration <= 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Focus duration must be greater than 0"
+    );
+  }
 
-  // Calculate total cycles
-  const totalCycles = Math.floor(duration / (workDuration + breakDuration));
+  if (breakDuration <= 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Break duration must be greater than 0"
+    );
+  }
 
-  // Get the current time for the session start
+  // Check if the user already has an active focus session
+  const activeSession = await prisma.focusSession.findFirst({
+    where: {
+      userId,
+      status: "Active",
+    },
+  });
+
+  if (activeSession) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "You already have an active focus session"
+    );
+  }
+
+  // Calculate focus session cycles
+  const totalCycles = Math.floor(
+    focusDuration / (focusDuration + breakDuration)
+  );
+
+  if (totalCycles === 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Focus duration is too short to create any session"
+    );
+  }
+
   let currentTime = new Date();
+  const createdSessions = [];
 
-  // Array to store created sessions
-  const createdSessions: TFocusSession[] = [];
-
+  // Create focus session cycles
   for (let i = 0; i < totalCycles; i++) {
     const workSessionStartTime = new Date(currentTime);
     const workSessionEndTime = new Date(
-      currentTime.getTime() + workDuration * 60 * 1000
+      currentTime.getTime() + focusDuration * 60 * 1000
     );
 
     const focusSession = await prisma.focusSession.create({
       data: {
-        user_id: userId,
-        start_time: workSessionStartTime,
-        end_time: workSessionEndTime,
-        duration: workDuration,
-        session_type: session_type,
-        note: note,
-        is_successful: false,
+        userId,
+        startedAt: workSessionStartTime,
+        endedAt: workSessionEndTime,
+        focusDuration,
+        breakDuration,
+        isComplete: false,
+        status: "Active",
       },
     });
 
     createdSessions.push(focusSession);
 
-    // Update current time to include break
+    // Update current time to the end of the break
     currentTime = new Date(
       workSessionEndTime.getTime() + breakDuration * 60 * 1000
     );
@@ -60,63 +94,152 @@ const createFocusSession = async (
   return createdSessions;
 };
 
-// Get all focus sessions
-const getAllFocusSessionsForUser = async (
-  userId: number
-): Promise<TFocusSession[]> => {
-  const userExists = await prisma.user.findUnique({
-    where: { user_id: userId },
-  });
+// Get active session for a user
+const getActiveSession = async (userId: number) => {
+  const userExists = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!userExists) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  // Retrieve all focus sessions for the user
-  const sessions = await prisma.focusSession.findMany({
-    where: { user_id: userId },
+  const activeSession = await prisma.focusSession.findFirst({
+    where: { userId, status: "Active" },
   });
 
-  if (sessions.length === 0) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
-      "No focus sessions found for this user"
-    );
+  if (!activeSession) {
+    throw new AppError(httpStatus.NOT_FOUND, "No active session found");
+  }
+
+  return activeSession;
+};
+
+// Get a focus session by ID
+const getFocusSessionById = async (id: number) => {
+  const session = await prisma.focusSession.findUnique({ where: { id } });
+
+  if (!session) {
+    throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
+  }
+
+  return session;
+};
+
+// Update a focus session by ID
+const updateFocusSession = async (id: number, payload: TFocusSession) => {
+  const sessionExists = await prisma.focusSession.findUnique({ where: { id } });
+
+  if (!sessionExists) {
+    throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
+  }
+
+  const updatedSession = await prisma.focusSession.update({
+    where: { id },
+    data: {
+      ...payload,
+      status: payload?.status as FocusSessionStatus,
+    },
+  });
+
+  return updatedSession;
+};
+
+// Delete a focus session by ID
+const deleteFocusSession = async (id: number) => {
+  const sessionExists = await prisma.focusSession.findUnique({ where: { id } });
+
+  if (!sessionExists) {
+    throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
+  }
+
+  const deletedSession = await prisma.focusSession.delete({ where: { id } });
+
+  return deletedSession;
+};
+
+// List all focus sessions for a user
+const listFocusSessions = async (userId: number) => {
+  const userExists = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!userExists) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const sessions = await prisma.focusSession.findMany({ where: { userId } });
+
+  if (!sessions.length) {
+    throw new AppError(httpStatus.NOT_FOUND, "No focus sessions found");
   }
 
   return sessions;
 };
 
-const getFocusSessionById = async (
-  session_id: number
-): Promise<TFocusSession | null> => {
-  return prisma.focusSession.findUnique({ where: { session_id } });
+// Update focus session status for a user
+const updateFocusSessionStatus = async (
+  userId: number,
+  status: "Active" | "Paused" | "Complete"
+) => {
+  const userExists = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!userExists) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const activeSession = await prisma.focusSession.findFirst({
+    where: { userId, status: "Active" },
+  });
+
+  if (!activeSession) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "No active session found to update"
+    );
+  }
+
+  const updatedSession = await prisma.focusSession.update({
+    where: { id: activeSession.id },
+    data: { status: status === "Complete" ? "Complete" : status },
+  });
+
+  return updatedSession;
 };
 
-const updateFocusSession = async (
-  session_id: number,
-  data: Partial<Omit<TFocusSession, "session_id" | "user_id">>
-): Promise<TFocusSession | null> => {
-  return prisma.focusSession.update({
-    where: { session_id },
+// Start a focus session for a user
+const startFocusSession = async (userId: number) => {
+  const userExists = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!userExists) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const activeSession = await prisma.focusSession.findFirst({
+    where: { userId, status: "Active" },
+  });
+
+  if (activeSession) {
+    throw new AppError(httpStatus.CONFLICT, "An active session already exists");
+  }
+
+  const newSession = await prisma.focusSession.create({
     data: {
-      ...data,
-      start_time: data.start_time ? new Date(data.start_time) : undefined,
-      end_time: data.end_time ? new Date(data.end_time) : undefined,
+      userId,
+      startedAt: new Date(),
+      focusDuration: 25,
+      breakDuration: 5,
+      status: "Active",
+      isComplete: false,
     },
   });
-};
 
-const deleteFocusSession = async (
-  session_id: number
-): Promise<TFocusSession | null> => {
-  return prisma.focusSession.delete({ where: { session_id } });
+  return newSession;
 };
 
 export const FocusSessionService = {
   createFocusSession,
-  getAllFocusSessionsForUser,
+  getActiveSession,
   getFocusSessionById,
   updateFocusSession,
   deleteFocusSession,
+  listFocusSessions,
+  updateFocusSessionStatus,
+  startFocusSession,
 };

@@ -23,10 +23,10 @@ router.get(
 router.put(
   "/:user_id",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
-  userController.update
+  userController.updateUser
 );
 
 // Delete user by ID
-router.delete("/:user_id", auth(USER_ROLE.ADMIN), userController.remove);
+router.delete("/:user_id", auth(USER_ROLE.ADMIN), userController.deleteUser);
 
 export const userRoutes = router;
