@@ -44,7 +44,7 @@ const getStreakMetrics = catchAsync(async (req, res) => {
   });
 });
 
-export const focusMetricController = {
+export const FocusMetricController = {
   getDailyMetrics,
   getWeeklyMetrics,
   getStreakMetrics,

@@ -61,4 +61,4 @@ router.put(
   FocusSessionController.startFocusSession
 );
 
-export const focusSessionRoutes = router;
+export const FocusSessionRoutes = router;

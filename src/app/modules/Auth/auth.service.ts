@@ -34,7 +34,7 @@ const getUserById = async (userId: number) => {
   return user;
 };
 
-export const authService = {
+export const AuthService = {
   registerUser,
   loginUser,
   getUserById,
