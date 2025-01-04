@@ -34,6 +34,7 @@ const login = catchAsync(async (req, res) => {
   });
 });
 
+// Get profile controller
 const getProfile = catchAsync(async (req, res) => {
   const userId = req.user.user_id;
 

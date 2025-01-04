@@ -22,6 +22,11 @@ export const seed = async () => {
           role: "ADMIN",
           email: "admin@example.com",
           password_hash: await bcrypt.hash("password123", 10),
+          last_login: new Date(),
+          created_at: new Date(),
+          updated_at: new Date(),
+          avatar_url:
+            "https://i.pinimg.com/280x280_RS/e1/08/21/e10821c74b533d465ba888ea66daa30f.jpg",
         },
       });
       console.log("Admin created successfully...");

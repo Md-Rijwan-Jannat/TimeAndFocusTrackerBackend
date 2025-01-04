@@ -2,11 +2,7 @@ import bcrypt from "bcryptjs";
 import { generateToken } from "../../utils/jwt";
 import prisma from "../../config/prismaClient";
 
-export const registerUser = async (
-  name: string,
-  email: string,
-  password: string
-) => {
+const registerUser = async (name: string, email: string, password: string) => {
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
@@ -22,13 +18,18 @@ export const registerUser = async (
       email,
       password_hash: hashedPassword,
       role: "USER",
+      last_login: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
+      avatar_url:
+        "https://i.pinimg.com/280x280_RS/e1/08/21/e10821c74b533d465ba888ea66daa30f.jpg",
     },
   });
 
   return user;
 };
 
-export const loginUser = async (email: string, password: string) => {
+const loginUser = async (email: string, password: string) => {
   const user = await prisma.user.findUnique({
     where: { email },
   });
@@ -41,7 +42,7 @@ export const loginUser = async (email: string, password: string) => {
   return { token, user };
 };
 
-export const getUserById = async (userId: number) => {
+const getUserById = async (userId: number) => {
   const user = await prisma.user.findUnique({
     where: { user_id: userId },
   });
