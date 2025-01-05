@@ -14,19 +14,19 @@ router.get(
 
 // Get user by ID
 router.get(
-  "/:user_id",
+  "/:userId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   userController.getUser
 );
 
 // Update user details
 router.put(
-  "/:user_id",
+  "/:userId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   userController.updateUser
 );
 
 // Delete user by ID
-router.delete("/:user_id", auth(USER_ROLE.ADMIN), userController.deleteUser);
+router.delete("/:userId", auth(USER_ROLE.ADMIN), userController.deleteUser);
 
 export const userRoutes = router;

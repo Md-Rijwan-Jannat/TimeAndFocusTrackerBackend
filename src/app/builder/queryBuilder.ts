@@ -111,7 +111,7 @@ class QueryBuilder<T> {
     return await this.modelDelegate.findMany({
       where: {}, // Add your where conditions if necessary
       orderBy: {
-        created_at: "desc", // Corrected to match the field in the Prisma schema
+        createdAt: "desc", // Corrected to match the field in the Prisma schema
       },
       skip: 0,
       take: 100,

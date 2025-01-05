@@ -3,6 +3,7 @@ import { userService } from "./user.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import catchAsync from "../../utils/catchAsync";
+import AppError from "../../error/appError";
 
 // Get user by ID
 const getAllUser = catchAsync(async (req, res) => {
@@ -32,10 +33,19 @@ const getUser = catchAsync(async (req, res) => {
 
 // Update user details
 const updateUser = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.user;
+  const { id } = req.user;
+  const userId = req.params.userId;
+
+  if (id !== Number(userId)) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to perform this action"
+    );
+  }
+
   const updatedData = req.body;
 
-  const updatedUser = await userService.updateUser(Number(userId), updatedData);
+  const updatedUser = await userService.updateUser(Number(id), updatedData);
 
   sendResponse(res, {
     success: true,

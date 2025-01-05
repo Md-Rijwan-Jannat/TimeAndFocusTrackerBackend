@@ -28,7 +28,7 @@ export const getAllUser = async (query: Record<string, unknown>) => {
 // Get user by ID
 export const getUserById = async (id: number) => {
   const user = await prisma.user.findUnique({
-    where: { id },
+    where: { id: id },
   });
 
   if (!user) {
@@ -40,6 +40,7 @@ export const getUserById = async (id: number) => {
 
 // Update user details
 export const updateUser = async (id: number, updatedData: Partial<any>) => {
+  console.log(id, updatedData);
   const user = await prisma.user.findUnique({
     where: { id },
   });
