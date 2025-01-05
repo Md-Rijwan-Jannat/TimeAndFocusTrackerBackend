@@ -32,6 +32,7 @@ CREATE TABLE "FocusSession" (
     "resumedAt" TIMESTAMP(3),
     "endedAt" TIMESTAMP(3),
     "status" "FocusSessionStatus" NOT NULL DEFAULT 'Active',
+    "totalPausedTime" INTEGER NOT NULL DEFAULT 0,
     "isComplete" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

@@ -8,6 +8,7 @@ export interface TFocusSession {
   pausedAt: Date; // TIMESTAMP	NULLABLE	Timestamp when the session was paused
   resumedAt: Date; // TIMESTAMP	NULLABLE	Timestamp when the session was resumed
   endedAt: Date; // TIMESTAMP	NULLABLE	Session end time
+  totalPausedTime: number; // INT	Default: 0	Total time the session was paused in minutes
   status: string; // ENUM	Default: 'active'	Session status: active, paused, completed
   isComplete: boolean; // BOOLEAN	Default: FALSE	Whether the session was completed
 }

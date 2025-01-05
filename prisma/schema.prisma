@@ -62,6 +62,7 @@ model FocusSession {
   resumedAt     DateTime?
   endedAt       DateTime?
   status        FocusSessionStatus @default(Active)
+  totalPausedTime Int             @default(0)
   isComplete    Boolean            @default(false)
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
