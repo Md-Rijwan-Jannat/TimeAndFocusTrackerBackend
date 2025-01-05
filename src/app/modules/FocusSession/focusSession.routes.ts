@@ -42,7 +42,7 @@ router.delete(
 
 // Route to list all focus sessions for a user
 router.get(
-  "/:userId",
+  "/:userId/list",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   FocusSessionController.listFocusSessions
 );
@@ -52,6 +52,13 @@ router.put(
   "/:userId/status",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   FocusSessionController.updateFocusSessionStatus
+);
+
+// Route to pause a focus session for a user
+router.put(
+  "/:userId/pause",
+  auth(USER_ROLE.ADMIN, USER_ROLE.USER),
+  FocusSessionController.pauseFocusSession
 );
 
 // Route to start a focus session for a user

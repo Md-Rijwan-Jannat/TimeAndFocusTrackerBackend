@@ -60,7 +60,7 @@ model FocusSession {
   startedAt     DateTime
   pausedAt      DateTime?
   resumedAt     DateTime?
-  endedAt       DateTime?
+  endedAt       DateTime
   status        FocusSessionStatus @default(Active)
   totalPausedTime Int             @default(0)
   isComplete    Boolean            @default(false)
@@ -70,6 +70,7 @@ model FocusSession {
   // Relation
   user          User               @relation(fields: [userId], references: [id])
 }
+
 
 model Rewards {
   id         Int          @id @default(autoincrement())

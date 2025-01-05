@@ -4,7 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import AppError from "../../error/appError";
 
-// Create focus session
+// Create a focus session
 const createFocusSession = catchAsync(async (req, res) => {
   const session = await FocusSessionService.createFocusSession(
     req.body,
@@ -19,29 +19,27 @@ const createFocusSession = catchAsync(async (req, res) => {
   });
 });
 
-// Get active focus session for a user
+// Get active session for a user
 const getActiveSession = catchAsync(async (req, res) => {
-  const activeSession = await FocusSessionService.getActiveSession(
-    Number(req.params.userId)
+  const session = await FocusSessionService.getActiveSession(
+    Number(req.user.id)
   );
-
-  if (!activeSession) {
-    throw new AppError(httpStatus.NOT_FOUND, "No active session found");
-  }
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "Active focus session retrieved",
-    data: activeSession,
+    message: "Active session retrieved successfully",
+    data: session,
   });
 });
 
-// Get focus session by ID
+// Get a focus session by ID
 const getFocusSessionById = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { sessionId } = req.params;
 
-  const session = await FocusSessionService.getFocusSessionById(Number(id));
+  const session = await FocusSessionService.getFocusSessionById(
+    Number(sessionId)
+  );
 
   if (!session) {
     throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
@@ -50,18 +48,18 @@ const getFocusSessionById = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "Focus session retrieved",
+    message: "Focus session retrieved successfully",
     data: session,
   });
 });
 
-// Update focus session by ID
+// Update a focus session by ID
 const updateFocusSession = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { sessionId } = req.params;
   const data = req.body;
 
   const updatedSession = await FocusSessionService.updateFocusSession(
-    Number(id),
+    Number(sessionId),
     data
   );
 
@@ -77,30 +75,23 @@ const updateFocusSession = catchAsync(async (req, res) => {
   });
 });
 
-// Delete focus session by ID
+// Delete a focus session by ID
 const deleteFocusSession = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { sessionId } = req.params;
 
-  const deletedSession = await FocusSessionService.deleteFocusSession(
-    Number(id)
-  );
-
-  if (!deletedSession) {
-    throw new AppError(httpStatus.NOT_FOUND, "Focus session not found");
-  }
+  await FocusSessionService.deleteFocusSession(Number(sessionId));
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: "Focus session deleted successfully",
-    data: deletedSession,
   });
 });
 
 // List all focus sessions for a user
 const listFocusSessions = catchAsync(async (req, res) => {
   const sessions = await FocusSessionService.listFocusSessions(
-    Number(req.params.userId)
+    Number(req.user.id)
   );
 
   sendResponse(res, {
@@ -111,7 +102,7 @@ const listFocusSessions = catchAsync(async (req, res) => {
   });
 });
 
-// Update focus session status
+// Update the focus session status
 const updateFocusSessionStatus = catchAsync(async (req, res) => {
   const { userId } = req.params;
   const { status } = req.body;
@@ -133,15 +124,30 @@ const updateFocusSessionStatus = catchAsync(async (req, res) => {
   });
 });
 
-// Start a focus session for a user
-const startFocusSession = catchAsync(async (req, res) => {
+// Pause a focus session for a user
+const pauseFocusSession = catchAsync(async (req, res) => {
   const { userId } = req.params;
-  const session = await FocusSessionService.startFocusSession(Number(userId));
+
+  const session = await FocusSessionService.pauseFocusSession(Number(userId));
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "Focus session started successfully",
+    message: "Focus session paused successfully",
+    data: session,
+  });
+});
+
+// Resume a paused focus session for a user
+const startFocusSession = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+
+  const session = await FocusSessionService.resumeFocusSession(Number(userId));
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Focus session resumed successfully",
     data: session,
   });
 });
@@ -154,5 +160,6 @@ export const FocusSessionController = {
   deleteFocusSession,
   listFocusSessions,
   updateFocusSessionStatus,
+  pauseFocusSession,
   startFocusSession,
 };
