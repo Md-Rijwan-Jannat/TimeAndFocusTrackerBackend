@@ -112,10 +112,13 @@ const calculateWeeklyMetrics = async (userId: number) => {
 };
 
 // Calculate monthly metrics (example: summarize by week)
-const calculateMonthlyMetrics = async (userId: number, month: Date) => {
-  const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
-  const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+const calculateMonthlyMetrics = async (userId: number) => {
+  // Get the current date and calculate start and end of the current month
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
+  // Fetch all focus sessions within the current month for the user
   const sessions = await prisma.focusSession.findMany({
     where: {
       userId: userId,
@@ -123,7 +126,7 @@ const calculateMonthlyMetrics = async (userId: number, month: Date) => {
     },
   });
 
-  // Aggregating data monthly (splitting the data across weeks)
+  // Initialize monthly data split into weeks
   const monthlyData = [
     { name: "Week 1", total: 0 },
     { name: "Week 2", total: 0 },
@@ -131,26 +134,27 @@ const calculateMonthlyMetrics = async (userId: number, month: Date) => {
     { name: "Week 4", total: 0 },
   ];
 
-  const totalFocusTime = sessions.reduce(
-    (sum, session) => sum + session.focusDuration,
-    0
-  );
+  // Calculate total focus time for the month and split into weeks
+  let totalFocusTime = 0;
 
-  // Split into weeks (simplified here; production logic should be more robust)
-  const currentWeekIndex = Math.floor(Math.random() * 4); // Example logic for demonstration
-  monthlyData[currentWeekIndex].total = totalFocusTime;
+  sessions.forEach((session) => {
+    const sessionDate = session.startedAt;
+    const weekIndex = Math.floor((sessionDate.getDate() - 1) / 7); // Determine the week index
+    monthlyData[weekIndex].total += session.focusDuration;
+    totalFocusTime += session.focusDuration;
+  });
 
-  // Reward logic for monthly performance
+  // Reward logic based on total focus time
   let rewardType: RewardType | null = null;
   let rewardDetails = "";
 
-  if (totalFocusTime > 60 * 60 * 20) {
-    // More than 20 hours in a month
+  if (totalFocusTime > 60 * 20) {
+    // More than 20 hours
     rewardType = RewardType.ProductivityMaster;
     rewardDetails =
       "Awarded for mastering productivity techniques over the month";
-  } else if (totalFocusTime > 60 * 60 * 10) {
-    // More than 10 hours in a month
+  } else if (totalFocusTime > 60 * 10) {
+    // More than 10 hours
     rewardType = RewardType.TimeManagementExpert;
     rewardDetails =
       "Awarded for excellent time management skills over the month";

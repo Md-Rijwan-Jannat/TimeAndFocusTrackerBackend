@@ -19,6 +19,13 @@ router.get(
   FocusMetricController.getWeeklyMetrics
 );
 
+// Route to get monthly metrics
+router.get(
+  "/monthly",
+  auth(USER_ROLE.ADMIN, USER_ROLE.USER),
+  FocusMetricController.getMonthlyMetrics
+);
+
 // Route to get streak metrics
 router.get(
   "/streak",

@@ -1,7 +1,7 @@
 import express from "express";
-import { RewardController } from "./reward.controller";
 import { auth } from "../../middleware/auth";
 import { USER_ROLE } from "../Auth/auth.constants";
+import { RewardController } from "./reward.controller";
 
 const router = express.Router();
 
@@ -35,14 +35,14 @@ router.get(
 
 // Get reward by ID
 router.get(
-  "/reward/:rewardId",
+  "/:rewardId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   RewardController.getRewardById
 );
 
 // Delete a reward
 router.delete(
-  "/reward/:rewardId",
+  "/:rewardId",
   auth(USER_ROLE.ADMIN, USER_ROLE.USER),
   RewardController.deleteReward
 );
