@@ -1,12 +1,6 @@
 import prisma from "../../config/prismaClient";
+import AppError from "../../error/appError";
 
-/**
- * Utility to calculate the new end time when a session is resumed from pause.
- * @param pausedAt - The time the session was paused.
- * @param totalPausedTime - Total paused time in milliseconds.
- * @param endedAt - The original endedAt time.
- * @returns New endedAt time.
- */
 // Utility function to calculate new end time when the session is resumed
 export const calculateNewEndTime = (
   pausedAt: Date,
@@ -18,72 +12,30 @@ export const calculateNewEndTime = (
   return new Date(endedAt.getTime() + newTotalPausedTime);
 };
 
-/**
- * Updates the status of a focus session based on time properties.
- * @param session - The focus session object.
- */
-export const updateFocusSessionStatus = async (session: {
-  id: number;
-  startedAt: Date;
-  pausedAt: Date | null;
-  endedAt: Date | null;
-  status: string;
-  totalPausedTime: number;
-}) => {
+// Check and update the status of a focus session to "Complete" if the session has elapsed.
+export const checkAndUpdateSessionCompletion = async (sessionId: number) => {
+  const session = await prisma.focusSession.findUnique({
+    where: { id: sessionId },
+  });
+
+  if (!session) {
+    throw new AppError(404, "Focus session not found");
+  }
+
   const currentTime = new Date();
+  const { endedAt, status } = session;
 
-  if (session.pausedAt) {
-    // If the session is paused, calculate new end time and keep status as "Paused"
-    const newEndedAt = session.endedAt
-      ? calculateNewEndTime(
-          session.pausedAt,
-          session.totalPausedTime,
-          session.endedAt
-        )
-      : null;
-
-    await prisma.focusSession.update({
-      where: { id: session.id },
-      data: {
-        endedAt: newEndedAt || undefined,
-        totalPausedTime:
-          session.totalPausedTime +
-          (currentTime.getTime() - session.pausedAt.getTime()),
-        status: "Paused",
-      },
-    });
-  } else if (session.endedAt && currentTime >= session.endedAt) {
-    // If the session has ended, mark as "Complete"
-    await prisma.focusSession.update({
-      where: { id: session.id },
+  // Check if session should be marked as complete
+  if (status !== "Complete" && endedAt && currentTime >= endedAt) {
+    const updatedSession = await prisma.focusSession.update({
+      where: { id: sessionId },
       data: {
         status: "Complete",
         isComplete: true,
       },
     });
-  } else {
-    // If the session is ongoing, keep status as "Active"
-    await prisma.focusSession.update({
-      where: { id: session.id },
-      data: {
-        status: "Active",
-      },
-    });
+    return updatedSession;
   }
-};
 
-/**
- * Function to automatically update session statuses.
- * Should be triggered periodically (e.g., via a scheduled job).
- */
-export const updateAllSessionStatuses = async () => {
-  const sessions = await prisma.focusSession.findMany({
-    where: {
-      OR: [{ status: "Active" }, { status: "Paused" }],
-    },
-  });
-
-  for (const session of sessions) {
-    await updateFocusSessionStatus(session);
-  }
+  return session; // Return the session if no update is required
 };

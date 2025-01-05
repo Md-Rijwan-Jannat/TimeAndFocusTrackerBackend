@@ -3,7 +3,10 @@ import AppError from "../../error/appError";
 import httpStatus from "http-status";
 import { TFocusSession } from "./focusSession.interface";
 import { FocusSessionStatus } from "@prisma/client";
-import { calculateNewEndTime } from "./focusSession.utils";
+import {
+  calculateNewEndTime,
+  checkAndUpdateSessionCompletion,
+} from "./focusSession.utils";
 
 // Create a new focus session
 const createFocusSession = async (
@@ -84,6 +87,9 @@ const getActiveSession = async (userId: number) => {
   if (!activeSession) {
     throw new AppError(httpStatus.NOT_FOUND, "No active session found");
   }
+
+  // Check and update completion status
+  await checkAndUpdateSessionCompletion(activeSession.id);
 
   return activeSession;
 };
